@@ -1,14 +1,25 @@
-from fastapi import FastAPI, UploadFile, File
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from fastapi import FastAPI, File, UploadFile
 from utils.model_service import predict_image
 
-app = FastAPI(title="RTTM AI Backend")
+app = FastAPI()
 
 @app.get("/")
-def home():
-    return {"message": "RTTM AI backend is running!"}
+def read_root():
+    return {"message": "RTTM Backend ishlayapti!"}
 
-@app.post("/predict")
+@app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
-    image_bytes = await file.read()
-    label = predict_image(image_bytes)
-    return {"label": label}
+    file_location = f"temp_{file.filename}"
+    with open(file_location, "wb") as f:
+        f.write(await file.read())
+    
+    result = predict_image(file_location)
+
+    os.remove(file_location)
+
+    return {"prediction": result}
