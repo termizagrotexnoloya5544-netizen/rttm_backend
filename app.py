@@ -1,6 +1,7 @@
 import sys
 import os
 
+# Ensure package path includes current directory
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI, File, UploadFile
@@ -17,7 +18,7 @@ async def predict(file: UploadFile = File(...)):
     file_location = f"temp_{file.filename}"
     with open(file_location, "wb") as f:
         f.write(await file.read())
-    
+
     result = predict_image(file_location)
 
     os.remove(file_location)
